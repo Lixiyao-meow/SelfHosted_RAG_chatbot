@@ -1,0 +1,7 @@
+__pycache__
+poetry.lock
+example_docs/*
+
+llama-2-7b-chat.Q4_K_M.gguf
+
+.DS_Store

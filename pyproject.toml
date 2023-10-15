@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "Self-hold_RAG_chatbot"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+langchain = "^0.0.314"
+fastapi = "^0.103.2"
+llama-cpp-python = "^0.2.11"
+unstructured = "^0.10.22"
+markdown = "^3.5"
+python-dotenv = "^1.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
