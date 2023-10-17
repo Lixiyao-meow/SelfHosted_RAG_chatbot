@@ -6,7 +6,7 @@ from langchain.document_loaders import UnstructuredMarkdownLoader
 class MarkdownLoader():
 
     def __init__(self, markdown_path):
-        self.markdown_path = markdown_path #os.getenv("MARKDOWN_PATH")
+        self.markdown_path = markdown_path
 
     def load_batch(self):
         docs = []
