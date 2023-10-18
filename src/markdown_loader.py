@@ -1,25 +1,45 @@
 import os
 import fnmatch
 
-from langchain.document_loaders import TextLoader
+from langchain.text_splitter import MarkdownHeaderTextSplitter
 
 class MarkdownLoader():
 
     def __init__(self, markdown_path):
         self.markdown_path = markdown_path
 
-    # find all .md files recursively and save the path
+    # find all .md files recursively and save the path into metadata
     def load_batch(self):
         docs = []
+        
+        # walk through all files
         for dirpath, dirs, files in os.walk(self.markdown_path): 
             for filename in fnmatch.filter(files, '*.md'):
-                md_file = os.path.join(dirpath, filename)
-                loader = TextLoader(md_file, encoding="utf-8")
-                data = loader.load()
+                md_filepath = os.path.join(dirpath, filename)
+                
+                # split one file into multiple files based on headers
+                splitted_md_files = self.split_markdown_file(md_filepath)
 
-                # add relative location and filename of data to metadata
-                data[0].metadata["dirpath"] = dirpath
-                data[0].metadata["filename"] = filename
-                docs.append(data[0])
-
+                for file in splitted_md_files:
+                    # add relative location and filename of data to metadata
+                    file.metadata["dirpath"] = dirpath
+                    file.metadata["filename"] = filename
+                    docs.append(file)
+                    
         return docs
+    
+    def split_markdown_file(self, md_filepath):
+        
+        md_file = open(md_filepath, "r").read()
+        
+        headers_to_split_on = [
+            ("#", "Header 1"),
+            ("##", "Header 2"),
+            ("###", "Header 3"),
+            ("####", "Header 4"),
+        ]
+
+        markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+        md_header_splits = markdown_splitter.split_text(md_file)
+
+        return md_header_splits
