@@ -1,3 +1,6 @@
+from typing import List
+from langchain.schema import Document
+
 from qdrant_client import QdrantClient
 from langchain.vectorstores import Qdrant
 from langchain.embeddings import HuggingFaceEmbeddings
@@ -17,7 +20,7 @@ class Vectorbase(Qdrant):
 
 
     # Return VectorStore initialized from documents and embeddings    
-    def build_vectordb(self, docs):
+    def build_vectordb(self, docs: List[Document]) -> Qdrant:
         
         assert self.embeddings is not None, "Please initialize the embedding model first"
 
@@ -25,7 +28,7 @@ class Vectorbase(Qdrant):
             docs,
             self.embeddings,
             location=":memory:",  # Local mode with in-memory storage only
-            collection_name="MD_files",
+            collection_name="useful_markdown_notes",
         )
         
         return vectorstore

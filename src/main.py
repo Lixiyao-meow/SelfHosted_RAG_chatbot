@@ -23,7 +23,7 @@ RAG_chatbot = FastAPI()
 # query the vector database
 @RAG_chatbot.get("/similarity_search/")
 def query_database(query: str):
-    answer = vectordb.similarity_search(query, k=1)
+    answer = vectordb.similarity_search(query, k=4)
     return {"answer": answer}
 
 if __name__ == "__main__":
