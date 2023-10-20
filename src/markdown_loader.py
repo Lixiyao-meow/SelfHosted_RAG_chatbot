@@ -33,7 +33,7 @@ class MarkdownLoader():
     
     def split_markdown_file(self, md_filepath: str) -> List[Document]:
         
-        md_file = open(md_filepath, "r").read()
+        md_file = open(md_filepath, "r", encoding="utf-8").read()
         
         # logical split with headers
         headers_to_split_on = [

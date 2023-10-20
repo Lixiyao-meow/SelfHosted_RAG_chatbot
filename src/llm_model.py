@@ -1,13 +1,9 @@
-import os
-import dotenv
 from typing import List
 
 from langchain.schema import Document
-from langchain.llms import LlamaCpp
+from langchain.llms.llamacpp import LlamaCpp
 from langchain.callbacks.manager import CallbackManager
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain import hub
-from langchain.chains.question_answering import load_qa_chain
+from langchain.callbacks import StdOutCallbackHandler
 
 class LLM_Model():
     
@@ -24,15 +20,35 @@ class LLM_Model():
             temperature=temperature,
             max_tokens=max_tokens,
             n_ctx=n_ctx,
-            callback_manager=CallbackManager([StreamingStdOutCallbackHandler()]),
-            verbose=verbose
-        )
+            callback_manager=CallbackManager([StdOutCallbackHandler()]),
+            verbose=verbose,
+            stop = ["<|im_end|>", "<|im_start|>"],
+        ) # type: ignore
 
-    def RAG_QA_chain(self, retrieved_docs: List[Document], query: str):
-        
+    def fill_prompt(self, context: str, prompt: str):
+        return f"""
+        <|im_start|>system
+        You are a helpful assistant. You are helping a user with a question.
+        Answer in a concise way in a few sentences.
+        Use the following information to answer the user's question.
+        If you don't know the answer to the question, you should answer "I don't know".
+        {context}<|im_end|>
+        <|im_start|>user
+        {prompt}<|im_end|>
+        <|im_start|>assistant
+        """
+
+    def RAG_QA_chain(self, retrieved_docs: List[Document], query: str) -> str:
+        """
+        <|im_start|>system
+        {system_message}<|im_end|>
+        <|im_start|>user
+        {prompt}<|im_end|>
+        <|im_start|>assistant
+        """
+
         assert self.llm is not None, "LLM is not initialized"
 
-        rag_prompt = hub.pull("rlm/rag-prompt")
-        chain = load_qa_chain(self.llm, chain_type="stuff", prompt=rag_prompt)
-        chain({"input_documents": retrieved_docs, "question": query}, return_only_outputs=True)
-        # how to output the answer?
+        context: str = "\n".join(doc.page_content for doc in retrieved_docs)
+        result: str = self.llm(self.fill_prompt(context, query))
+        return result

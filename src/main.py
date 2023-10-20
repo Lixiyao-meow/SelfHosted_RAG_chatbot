@@ -6,9 +6,16 @@ import uvicorn
 import markdown_loader as markdown_loader
 import vectorbase as vectorbase
 
+def safe_load_env(env_var: str):
+    r = os.getenv(env_var)
+    if r is None:
+        print(f"Please set the environment variable {env_var}")
+        exit(1)
+    return r
+
 dotenv.load_dotenv()
-markdown_path = os.getenv("MARKDOWN_PATH")
-embed_model_name = os.getenv("EMBED_MODEL_NAME")
+markdown_path = safe_load_env("MARKDOWN_PATH")
+embed_model_name = safe_load_env("EMBED_MODEL_NAME")
 
 # load markdown files
 loader = markdown_loader.MarkdownLoader(markdown_path)
@@ -30,6 +37,6 @@ if __name__ == "__main__":
     
     uvicorn.run(
         RAG_chatbot, 
-        host=os.getenv("HOST"), 
-        port=int(os.getenv("PORT"))
+        host=safe_load_env("HOST"), 
+        port=int(safe_load_env("PORT"))
     )

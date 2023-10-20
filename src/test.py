@@ -36,5 +36,5 @@ query = "How to update Kubernetes?"
 retrieved_docs = vectordb.similarity_search(query, k=1)
 
 print("Answering question ... ")
-llm = llm_model.LLM_Model(model_path)
-llm.RAG_QA_chain(retrieved_docs, query)
+llm = llm_model.LLM_Model(model_path, verbose=False)
+print(llm.RAG_QA_chain(retrieved_docs, query))
