@@ -12,7 +12,7 @@ class LLM_Model():
                  verbose:bool=True):
         
         self.model_path = model_path
-        
+
         self.llm = LlamaCpp(
             model_path=model_path,
             n_gpu_layers=n_gpu_layers, # TODO: make it work with GPU
@@ -30,8 +30,9 @@ class LLM_Model():
         <|im_start|>system
         You are a helpful assistant. You are helping a user with a question.
         Answer in a concise way in a few sentences.
-        Use the following information to answer the user's question.
-        If you don't know the answer to the question, you should answer "I don't know".
+        Use the following context to answer the user's question.
+        If the given given context does not have the information to answer the question, you should answer "I don't know" and don't say anything else.
+        Context:
         {context}<|im_end|>
         <|im_start|>user
         {prompt}<|im_end|>

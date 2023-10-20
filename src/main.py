@@ -3,10 +3,13 @@ import dotenv
 from fastapi import FastAPI
 import uvicorn
 
+from langchain.vectorstores.qdrant import Qdrant
+
 import markdown_loader as markdown_loader
 import vectorbase as vectorbase
+from llm_model import LLM_Model
 
-def safe_load_env(env_var: str):
+def safe_load_env(env_var: str) -> str:
     r = os.getenv(env_var)
     if r is None:
         print(f"Please set the environment variable {env_var}")
@@ -23,14 +26,31 @@ docs = loader.load_batch()
 
 # init vector database
 db = vectorbase.Vectorbase(embed_model_name)
-vectordb = db.build_vectordb(docs)
+vectordb: Qdrant = db.build_vectordb(docs)
 
 RAG_chatbot = FastAPI()
+
+
 
 # query the vector database
 @RAG_chatbot.get("/similarity_search/")
 def query_database(query: str):
     answer = vectordb.similarity_search(query, k=4)
+    return {"answer": answer}
+
+
+lazy_model: LLM_Model | None = None
+def get_model() -> LLM_Model:
+    global lazy_model
+    if lazy_model is None:
+        model_path = safe_load_env("MODEL_PATH")
+        lazy_model = LLM_Model(model_path, n_gpu_layers=40, verbose=False)
+    return lazy_model
+
+@RAG_chatbot.get("/rag")
+def generate_answer(query: str):
+    docs = vectordb.similarity_search(query, k=4)
+    answer = get_model().RAG_QA_chain(docs, query)
     return {"answer": answer}
 
 if __name__ == "__main__":
