@@ -7,3 +7,7 @@ tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
 note.md
 #src/test.py
 .DS_Store
+
+# ignore models
+model/*
+models/*
