@@ -2,7 +2,7 @@ from typing import List
 from langchain.schema import Document
 
 from qdrant_client import QdrantClient
-from langchain.vectorstores import Qdrant
+from langchain.vectorstores.qdrant import Qdrant
 from langchain.embeddings import HuggingFaceEmbeddings
 
 class Vectorbase(Qdrant):

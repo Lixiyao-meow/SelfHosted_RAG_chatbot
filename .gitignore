@@ -2,8 +2,9 @@ __pycache__
 src/__pycache__
 poetry.lock
 example_docs/*
+qdrant_storage/*
 
-tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
+models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
 note.md
 #src/test.py
 .DS_Store
