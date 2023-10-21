@@ -40,16 +40,10 @@ class LLM_Model():
         """
 
     def RAG_QA_chain(self, retrieved_docs: List[Document], query: str) -> str:
-        """
-        <|im_start|>system
-        {system_message}<|im_end|>
-        <|im_start|>user
-        {prompt}<|im_end|>
-        <|im_start|>assistant
-        """
 
         assert self.llm is not None, "LLM is not initialized"
 
         context: str = "\n".join(doc.page_content for doc in retrieved_docs)
         result: str = self.llm(self.fill_prompt(context, query))
+        
         return result
