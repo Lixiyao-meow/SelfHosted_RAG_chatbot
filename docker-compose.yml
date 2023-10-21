@@ -6,20 +6,20 @@ services:
     volumes: 
       - ./qdrant_storage:/qdrant/storage:z
 
-  ragbot:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - 8000:8000
-    volumes:
-      - ./models:/models
-      - ./example_docs:/docs
-    environment:
-      - MARKDOWN_PATH=/docs
-      - MODEL_PATH=/models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
-      - EMBED_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
-      - HOST=0.0.0.0
-      - PORT=8000
-    depends_on: 
-      - Qdrant
+  # ragbot:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8000:8000
+  #   volumes:
+  #     - ./model:/models
+  #     - C:\Users\peter\MegaDrive\Obsidian_md\personal-notes-laptop:/docs
+  #   environment:
+  #     - MARKDOWN_PATH=/docs
+  #     - MODEL_PATH=/models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
+  #     - EMBED_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
+  #     - HOST=0.0.0.0
+  #     - PORT=8000
+  #   depends_on: 
+  #     - Qdrant

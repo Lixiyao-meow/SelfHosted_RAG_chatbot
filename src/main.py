@@ -3,9 +3,17 @@ import dotenv
 from fastapi import FastAPI
 import uvicorn
 
+from langchain.embeddings import LocalAIEmbeddings, HuggingFaceEmbeddings
+import openai
+
 import markdown_loader as markdown_loader
 import local_database as local_database
 import hosted_database as hosted_database
+
+openai.api_key = "None"
+openai.api_base = "http://localhost:8888/v1"
+openai.ChatCompletion.create()
+
 #from llm_model import LLM_Model
 
 def safe_load_env(env_var: str) -> str:
@@ -23,13 +31,19 @@ embed_model_name = safe_load_env("EMBED_MODEL_NAME")
 loader = markdown_loader.MarkdownLoader(markdown_path)
 docs = loader.load_batch()
 
-# init vector database
-#db = local_database.Vectorbase(embed_model_name)
-#vectordb: Qdrant = db.build_vectordb(docs)
+# init embedding model -> use external api
+embedding = LocalAIEmbeddings(
+    client="me", 
+    openai_api_base=safe_load_env("EMBEDDING_API"), 
+    openai_api_key="", 
+    embedding_ctx_length=1024
+)
 
-vectordb = hosted_database.build_database(embed_model_name, 
-                                          docs, 
-                                          database_url="http://localhost")
+# init vector database
+vectordb = hosted_database.build_database(
+    embedding, 
+    docs, 
+    database_url="http://localhost")
 
 RAG_chatbot = FastAPI()
 

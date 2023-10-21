@@ -16,6 +16,7 @@ sentence-transformers = "^2.2.2"
 qdrant-client = "^1.6.2"
 uvicorn = "^0.23.2"
 langchainhub = "^0.1.13"
+openai = "^0.28.1"
 
 [build-system]
 requires = ["poetry-core"]

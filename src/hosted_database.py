@@ -2,21 +2,17 @@ from typing import List
 from langchain.schema import Document
 
 from langchain.vectorstores.qdrant import Qdrant
-from langchain.embeddings import HuggingFaceEmbeddings
+from langchain.schema.embeddings import Embeddings
 
-def build_database(embed_model_name:str, docs: List[Document], database_url:str="localhost", database_port:int=6333):
-        
-    embeddings = HuggingFaceEmbeddings(
-        model_name=embed_model_name,
-        model_kwargs={'device': 'cpu'},
-        encode_kwargs={'normalize_embeddings': False}
-    )
-        
+# Dependency inject embedding
+def build_database(embedding: Embeddings, docs: List[Document], database_url:str="localhost", database_port:int=6333) -> Qdrant:
     return Qdrant.from_documents(
         docs,
-        embeddings,
+        embedding,
         url=database_url,
+        port = database_port,
         #prefer_grpc=True,
         collection_name="Peter's useful notes",
-        force_recreate=True
+        force_recreate=True,
+        distance_func = "Cosine",
     )
