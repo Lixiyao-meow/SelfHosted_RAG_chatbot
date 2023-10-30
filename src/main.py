@@ -3,18 +3,16 @@ import dotenv
 from fastapi import FastAPI
 import uvicorn
 
-from langchain.embeddings import LocalAIEmbeddings, HuggingFaceEmbeddings
-import openai
+from langchain.embeddings import LocalAIEmbeddings, HuggingFaceEmbeddings, LlamaCppEmbeddings
 
 import markdown_loader as markdown_loader
 import local_database as local_database
 import hosted_database as hosted_database
+from generators.local_llm import LLM_Model
+from generators.interfaces import EmbeddingModel
 
-openai.api_key = "None"
-openai.api_base = "http://localhost:8888/v1"
-openai.ChatCompletion.create()
-
-#from llm_model import LLM_Model
+# Load environment variables from .env file
+dotenv.load_dotenv()
 
 def safe_load_env(env_var: str) -> str:
     r = os.getenv(env_var)
@@ -23,7 +21,6 @@ def safe_load_env(env_var: str) -> str:
         exit(1)
     return r
 
-dotenv.load_dotenv()
 markdown_path = safe_load_env("MARKDOWN_PATH")
 embed_model_name = safe_load_env("EMBED_MODEL_NAME")
 
@@ -31,13 +28,9 @@ embed_model_name = safe_load_env("EMBED_MODEL_NAME")
 loader = markdown_loader.MarkdownLoader(markdown_path)
 docs = loader.load_batch()
 
-# init embedding model -> use external api
-embedding = LocalAIEmbeddings(
-    client="me", 
-    openai_api_base=safe_load_env("EMBEDDING_API"), 
-    openai_api_key="", 
-    embedding_ctx_length=1024
-)
+# We should do this conditionally, but for now we just do it here
+generative_model = LLM_Model(safe_load_env("LLM_MODEL_PATH"), n_gpu_layers=0, verbose=False, embedding=True)
+embedding = EmbeddingModel(generative_model.llm.embed)
 
 # init vector database
 vectordb = hosted_database.build_database(

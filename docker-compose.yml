@@ -1,25 +1,53 @@
 services:
-  Qdrant:
+  qdrant:
     image: qdrant/qdrant
     ports: 
       - 6333:6333
     volumes: 
       - ./qdrant_storage:/qdrant/storage:z
+  
+  llamacpp:
+    container_name: llama-cpp
+    build:
+      context: ./llama-cpp-python/docker/cuda_simple
+      dockerfile: Dockerfile
+    ports:
+      - 8888:8000
+    volumes:
+      - ./models:/models
+    environment:
+      - MODEL=/models/pygmalion-2-7b.Q4_K_M.gguf
+      - N_GPU_LAYERS=40
+      - N_CTX=4096
+      - TZ=Etc/UTC
+      - LLAMA_CUBLAS=1
+    restart: no
+    command: python3 -m llama_cpp.server --last_n_tokens_size 1
+    # depends_on:
+    #   - test
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
-  # ragbot:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - 8000:8000
-  #   volumes:
-  #     - ./model:/models
-  #     - C:\Users\peter\MegaDrive\Obsidian_md\personal-notes-laptop:/docs
-  #   environment:
-  #     - MARKDOWN_PATH=/docs
-  #     - MODEL_PATH=/models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
-  #     - EMBED_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
-  #     - HOST=0.0.0.0
-  #     - PORT=8000
-  #   depends_on: 
-  #     - Qdrant
+  ragbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      # - ./model:/models
+      - C:\Users\peter\MegaDrive\Obsidian_md\personal-notes-laptop:/docs
+    environment:
+      - MARKDOWN_PATH=/docs
+      # - MODEL_PATH=/models/tinyllama-1.1b-chat-v0.3.Q4_K_M.gguf
+      - EMBED_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
+      - HOST=0.0.0.0
+      - PORT=8000
+    depends_on: 
+      - qdrant
+      - llamacpp
