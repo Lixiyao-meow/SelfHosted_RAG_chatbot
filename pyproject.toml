@@ -6,7 +6,7 @@ authors = ["Xiyao and Peter"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
 langchain = "^0.0.314"
 fastapi = "^0.103.2"
 unstructured = "^0.10.22"
@@ -19,6 +19,7 @@ langchainhub = "^0.1.13"
 openai = "^0.28.1"
 llama-cpp-python = "^0.2.11"
 asyncio = "^3.4.3"
+atro-args = "^0.6.12"
 
 [build-system]
 requires = ["poetry-core"]

@@ -13,9 +13,9 @@ def build_database(embedding: Embeddings | Callable[[str], List[float]], docs: L
         docs,
         embedding_model, # type: ignore
         url=database_url,
-        port = database_port,
+        port=database_port,
         #prefer_grpc=True,
         collection_name="Peter's useful notes",
         force_recreate=True,
-        distance_func = "Cosine",
+        distance_func="Cosine",
     )

@@ -9,6 +9,9 @@ note.md
 #src/test.py
 .DS_Store
 
+# ignore development environment
+.env
+
 # ignore models
 model/*
 models/*

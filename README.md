@@ -19,6 +19,17 @@ OR
 poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt
 ```
 
+## Local Llama
+GPU support for `llama-cpp-python` requires manual installation:
+```sh
+CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python==0.2.11 --force-reinstall --no-cache-dir
+```
+
+## Pytorch with CUDA
+```sh
+pip install --force-reinstall torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121        
+```
+
 This will create a clean requirements.txt installation that pip can use
 
 # Image Building
