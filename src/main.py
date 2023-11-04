@@ -5,8 +5,8 @@ import uvicorn
 from langchain.embeddings import HuggingFaceEmbeddings
 
 import markdown_loader as markdown_loader
-import local_database as local_database
-import hosted_database as hosted_database
+from database import local_database as local_database
+from database import hosted_database as hosted_database
 from generators.local_llm import LLM_Model
 from generators.interfaces import EmbeddingModel, SimpleGenerativeModel
 from settings import Settings, load_settings
