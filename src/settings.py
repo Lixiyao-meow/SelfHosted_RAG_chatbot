@@ -11,8 +11,5 @@ class Settings(BaseModel):
     EMBED_MODEL_NAME: str = "sentence-transformers/all-mpnet-base-v2"
     MODEL_PATH: str = "model/model.gguf"
 
-
 def load_settings(cli_args: Optional[Sequence[str]] = None) -> Settings:
-    my_args = InputArgs(prefix="RAG")
-    my_args.add_cls(Settings)
-    return my_args.get_cls(Settings, cli_args)
+    return InputArgs(prefix="RAG").populate_cls(Settings, cli_args)
