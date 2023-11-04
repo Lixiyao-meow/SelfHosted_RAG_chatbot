@@ -2,7 +2,7 @@ from typing import List
 from httpx import stream
 
 from langchain.schema import Document
-from llama_cpp import ChatCompletion
+from llama_cpp import ChatCompletion, ChatCompletionMessage
 import openai
 
 class HostedLlm():
