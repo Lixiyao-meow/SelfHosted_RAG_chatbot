@@ -61,7 +61,7 @@ docs = loader.load_batch()
 # init vector database
 vectordb = hosted_database.build_database(
     embedding, 
-    docs, 
+    [doc for doc in docs],
     database_url=app_settings.DATABASE_URL)
 
 RAG_chatbot = FastAPI()

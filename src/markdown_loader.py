@@ -1,6 +1,6 @@
 import os
 import fnmatch
-from typing import List
+from typing import Iterator, List
 
 from langchain.schema import Document
 from langchain.text_splitter import MarkdownHeaderTextSplitter
@@ -12,9 +12,7 @@ class MarkdownLoader():
         self.markdown_path = markdown_path
 
     # find all .md files recursively and save the path into metadata
-    def load_batch(self) -> List[Document]:
-        docs = []
-        
+    def load_batch(self) -> Iterator[Document]:
         # walk through all files
         for dirpath, dirs, files in os.walk(self.markdown_path): 
             for filename in fnmatch.filter(files, '*.md'):
@@ -27,9 +25,7 @@ class MarkdownLoader():
                     # add relative location and filename of data to metadata
                     file.metadata["dirpath"] = dirpath
                     file.metadata["filename"] = filename
-                    docs.append(file)
-                    
-        return docs
+                    yield file # lazy loading of files
     
     def split_markdown_file(self, md_filepath: str) -> List[Document]:
         
@@ -47,6 +43,7 @@ class MarkdownLoader():
         md_header_splits = markdown_splitter.split_text(md_file)
         
         # text should not exceed 1024 tokens
+        # Note, chunks by default are defined by simple length of string -> number of characters
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size = 1024,
             chunk_overlap = 10,
