@@ -42,11 +42,13 @@ class MarkdownLoader():
         markdown_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
         md_header_splits = markdown_splitter.split_text(md_file)
         
-        # text should not exceed 1024 tokens
-        # Note, chunks by default are defined by simple length of string -> number of characters
+        # text should not exceed 256 words
+        def length_function(text: str) -> int:
+            return len(text.split())
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 1024,
+            chunk_size = 256,
             chunk_overlap = 10,
+            length_function = length_function
         )
         splits = text_splitter.split_documents(md_header_splits)
 
