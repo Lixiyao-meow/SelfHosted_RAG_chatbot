@@ -21,7 +21,7 @@ class Settings(BaseModel):
 
 class InMemoryEmbeddingSettings(BaseModel):
     EMBED_MODEL_NAME: str = "sentence-transformers/all-mpnet-base-v2"
-    EMBED_DEVICE: Literal["cuda"] | Literal["cpu"] = "cuda"
+    EMBED_DEVICE: Literal["cuda"] | Literal["cpu"] = "cpu" # set to CPU by default to run it easily
 
 class HostedEmbeddingSettings(BaseModel):
     EMBED_API_BASE: str = "http://127.0.0.1"
