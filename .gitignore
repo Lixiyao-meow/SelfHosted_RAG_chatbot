@@ -9,6 +9,9 @@ note.md
 #src/test.py
 .DS_Store
 
+# ignore pyenv version file
+.python-version
+
 # ignore development environment
 .env
 
