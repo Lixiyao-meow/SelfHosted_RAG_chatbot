@@ -2,7 +2,10 @@ from typing import Callable, Iterable, List
 
 from langchain.schema import Document
 from llama_cpp import ChatCompletionMessage, Completion, Llama
-from formatters import MarxFormatter
+
+from llama_cpp.llama_chat_format import ChatFormatterResponse
+from formatters.marx_formatter import MarxFormatter
+from formatters.tiny_llama_formatter import TinyLlamaFormatter
 
 
 class LLM_Model():
@@ -35,18 +38,18 @@ class LLM_Model():
         Use the following context to answer the user's question.
         If the given given context does not have the information to answer the question, you should answer "I don't know" and don't say anything else."""
 
-    def RAG_QA_chain(self, retrieved_docs: List[Document], query: str) -> str:
+    def RAG_QA_chain(self, retrieved_docs: List[Document], query: str) -> tuple[list[str], str]:
         assert self.llm is not None, "LLM is not initialized"
 
         context: ChatCompletionMessage = ChatCompletionMessage(
             role="system", 
-            content=self.system_message+"\n"+ \
-                "\n".join("- " + doc.page_content for doc in retrieved_docs)
+            content=self.system_message+"\nRelevant context\n"+ \
+                "\n".join("```" + doc.page_content + "```" for doc in retrieved_docs)
         )
         # We ignore the type because it is entirely dependent on streaming
 
-        prompt = MarxFormatter().call([context, ChatCompletionMessage(role="user", content=query)])
+        prompt: ChatFormatterResponse = TinyLlamaFormatter().call([context, ChatCompletionMessage(role="user", content=query)])
         result: Completion = self.llm.create_completion(prompt=prompt.prompt, stop=prompt.stop, temperature=0.1) # type: ignore
 
         # return generated text
-        return result["choices"][0]["text"]
+        return [doc.page_content for doc in retrieved_docs], result["choices"][0]["text"]

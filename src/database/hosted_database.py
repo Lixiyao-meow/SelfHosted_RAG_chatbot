@@ -7,7 +7,7 @@ from langchain.schema.embeddings import Embeddings
 from generators.interfaces import EmbeddingModel
 
 # Dependency inject embedding
-def build_database(embedding: Embeddings | Callable[[str], List[float]], docs: List[Document], database_url:str="localhost", database_port:int=6333) -> Qdrant:
+def build_database(embedding: Embeddings | Callable[[str], List[float]], docs: List[Document], database_url:str="http://localhost", database_port:int=6333) -> Qdrant:
     embedding_model = embedding if isinstance(embedding, Embeddings) else EmbeddingModel(embedding)
     return Qdrant.from_documents(
         docs,

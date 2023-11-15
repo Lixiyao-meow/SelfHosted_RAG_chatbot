@@ -46,8 +46,8 @@ class MarkdownLoader():
         def length_function(text: str) -> int:
             return len(text.split())
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 256,
-            chunk_overlap = 10,
+            chunk_size = 1024,
+            chunk_overlap = 100,
             length_function = length_function
         )
         splits = text_splitter.split_documents(md_header_splits)
