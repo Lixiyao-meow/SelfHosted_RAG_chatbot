@@ -1,12 +1,19 @@
 # Environment variables:
 ```env
-MARKDOWN_PATH=<path to markdown documents to recursively load>
-MODEL_PATH=<llamacpp model path if using LLamaCPP>
-USE_INMEMORY_LLM=<true/false for running LLM model inmemory -> LlamaCPP>
-EMBED_MODEL_NAME=<name>
-EMBEDDING_API=<url for embedding eg.: localhost:8000/v1>
-HOST=0.0.0.0
-PORT=8000
+# Settings for hosting and document loading
+RAG_MARKDOWN_PATH=<path to markdown documents>
+RAG_HOST=0.0.0.0
+RAG_PORT=8000
+
+# Settings for Generative Model
+RAG_HOSTED_LLM=false
+RAG_MODEL_PATH=./models/model.gguf
+RAG_N_GPU_LAYERS=32
+RAG_VERBOSE=true
+
+# Settings for embedding model
+RAG_EMBED_MODEL_NAME=sentence-transformers/all-mpnet-base-v2
+RAG_EMBED_DEVICE=cuda
 ```
 
 # Development
