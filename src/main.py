@@ -1,63 +1,99 @@
-import os
 import dotenv
 from fastapi import FastAPI
 import uvicorn
 
+from langchain.embeddings import HuggingFaceEmbeddings
+
 import markdown_loader as markdown_loader
-import local_database as local_database
-import hosted_database as hosted_database
-#from llm_model import LLM_Model
+from database import local_database as local_database
+from database import hosted_database as hosted_database
+from generators.local_llm import LLM_Model
+from generators.hosted_llm import HostedLlm
+from generators.interfaces import EmbeddingModel, SimpleGenerativeModel
+from settings import HostedLlmSettings, InMemoryEmbeddingSettings, InMemoryLlmSettings, Settings, load_settings
 
-def safe_load_env(env_var: str) -> str:
-    r = os.getenv(env_var)
-    if r is None:
-        print(f"Please set the environment variable {env_var}")
-        exit(1)
-    return r
-
+# Load environment variables from .env file
 dotenv.load_dotenv()
-markdown_path = safe_load_env("MARKDOWN_PATH")
-embed_model_name = safe_load_env("EMBED_MODEL_NAME")
+app_settings: Settings = load_settings(Settings)
 
-# load markdown files
+# Loading LLM model could be done lazily
+# For simplicity we load it eagerly for now
+if app_settings.HOSTED_LLM:
+    # Use hosted LLM
+    llm_settings = load_settings(HostedLlmSettings)
+    generative_model = HostedLlm(
+        llm_settings.LLM_API_BASE,
+        llm_settings.LLM_API_KEY,
+    )
+else:    
+    # Load settings and construct LLM model to be used in-memory
+    llm_settings = load_settings(InMemoryLlmSettings)
+    generative_model = LLM_Model(
+        llm_settings.MODEL_PATH, 
+        n_gpu_layers=llm_settings.N_GPU_LAYERS, 
+        verbose=llm_settings.VERBOSE, 
+        embedding=llm_settings.EMBEDDING
+    )
+    # If we allow to use LLM for embedding, we map its embedding function to the embedding interface
+    if llm_settings.EMBEDDING:
+        # Embedding via LLama.cpp model
+        embedding = EmbeddingModel(generative_model.llm.embed)
+
+if app_settings.HOSTED_EMBEDDING:
+    raise Exception("Hosted embedding is not implemented yet")
+else:
+    # Use inmemory embedding
+    embed_settings = load_settings(InMemoryEmbeddingSettings)
+    # For simplicity use HuggingFace model for embedding
+    tmp = HuggingFaceEmbeddings(
+        model_name=embed_settings.EMBED_MODEL_NAME,
+        model_kwargs={'device': embed_settings.EMBED_DEVICE},
+        encode_kwargs={'normalize_embeddings': False}
+    )
+    embedding = EmbeddingModel(tmp.embed_query)
+
+
+# Load markdown files
+markdown_path: str = app_settings.MARKDOWN_PATH
 loader = markdown_loader.MarkdownLoader(markdown_path)
 docs = loader.load_batch()
 
 # init vector database
-#db = local_database.Vectorbase(embed_model_name)
-#vectordb: Qdrant = db.build_vectordb(docs)
-
-vectordb = hosted_database.build_database(embed_model_name, 
-                                          docs, 
-                                          database_url="http://localhost")
+vectordb = hosted_database.build_database(
+    embedding, 
+    [doc for doc in docs],
+    database_url=app_settings.DATABASE_URL)
 
 RAG_chatbot = FastAPI()
 
 # query the vector database
 @RAG_chatbot.get("/similarity_search/")
-def query_database(query: str):
-    answer = vectordb.similarity_search(query, k=4)
+def query_database(query: str, k: int = 4):
+    """
+    Using query, retrieve relevant documents from the database
+    """
+    answer = vectordb.similarity_search_with_score(query, k=k)
     return {"answer": answer}
 
-'''
-lazy_model: LLM_Model | None = None
-def get_model() -> LLM_Model:
-    global lazy_model
-    if lazy_model is None:
-        model_path = safe_load_env("MODEL_PATH")
-        lazy_model = LLM_Model(model_path, n_gpu_layers=0, verbose=False)
-    return lazy_model
+# This is would be used to inject the model into the API
+# The simplicity is temporary, we will need to add more functionality here to decide what model to use
+def get_model() -> SimpleGenerativeModel:
+    return generative_model
 
 @RAG_chatbot.get("/rag")
 def generate_answer(query: str):
-    docs = vectordb.similarity_search(query, k=4)
-    answer = get_model().RAG_QA_chain(docs, query)
+    """
+    Using query, retrieve relevant documents from the database and generate answer via LLM
+    """
+    scored_docs = query_database(query, 4)["answer"]
+    answer = get_model().RAG_QA_chain([pairs[0] for pairs in scored_docs], query)
     return {"answer": answer}
-'''
+
+    
 if __name__ == "__main__":
     
     uvicorn.run(
         RAG_chatbot, 
-        host=safe_load_env("HOST"), 
-        port=int(safe_load_env("PORT"))
+        host=app_settings.HOST, 
+        port=app_settings.PORT,
     )
