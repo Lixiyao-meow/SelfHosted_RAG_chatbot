@@ -17,6 +17,9 @@ RAG_EMBED_DEVICE=cuda
 ```
 
 # Development
+
+## Install requirements
+
 To create `requirements.txt` use:
 ```sh
 poetry export --without-hashes -f requirements.txt -o requirements.txt
@@ -24,6 +27,11 @@ poetry export --without-hashes -f requirements.txt -o requirements.txt
 OR
 ```sh
 poetry export --without-hashes --without dev -f requirements.txt -o requirements.txt
+```
+
+## Install Pytorch with CUDA (required for inmemory embedding model)
+```sh
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 ## Local Llama

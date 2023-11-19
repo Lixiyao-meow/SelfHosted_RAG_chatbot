@@ -15,7 +15,7 @@ class Settings(BaseModel):
     MARKDOWN_PATH: str = "data"
     HOSTED_EMBEDDING: bool = False
     # EMBED_MODEL_NAME: str = "sentence-transformers/all-mpnet-base-v2" # only required if inmemory embedding is used
-    HOSTED_LLM: bool = False
+    INMEMORY_LLM: bool = True
     # MODEL_PATH: str = "model/model.gguf" # only required if inmemory LLM is used
     DATABASE_URL: str = "http://localhost"
 

@@ -6,6 +6,7 @@ from llama_cpp import ChatCompletionMessage, Completion, Llama
 from llama_cpp.llama_chat_format import ChatFormatterResponse
 from formatters.marx_formatter import MarxFormatter
 from formatters.tiny_llama_formatter import TinyLlamaFormatter
+from formatters.formatter import GeneralFormatter, KnownFormats
 
 
 class LLM_Model():
@@ -34,7 +35,7 @@ class LLM_Model():
         ) # type: ignore
     
     system_message = """You are a helpful assistant. You are helping a user with a question.
-        Answer in a concise way in a few sentences.
+        Answer in the most concise way in a few sentences.
         Use the following context to answer the user's question.
         If the given given context does not have the information to answer the question, you should answer "I don't know" and don't say anything else."""
 
@@ -48,8 +49,9 @@ class LLM_Model():
         )
         # We ignore the type because it is entirely dependent on streaming
 
-        prompt: ChatFormatterResponse = TinyLlamaFormatter().call([context, ChatCompletionMessage(role="user", content=query)])
-        result: Completion = self.llm.create_completion(prompt=prompt.prompt, stop=prompt.stop, temperature=0.1) # type: ignore
+        formatter = GeneralFormatter(KnownFormats.ChatML.value)
+        prompt: ChatFormatterResponse = formatter(messages=[context, ChatCompletionMessage(role="user", content=query)])
+        result: Completion = self.llm.create_completion(prompt=prompt.prompt, stop=prompt.stop, top_p=0.90, top_k=4, temperature=0.05, max_tokens=1024) # type: ignore
 
         # return generated text
         return [doc.page_content for doc in retrieved_docs], result["choices"][0]["text"]
