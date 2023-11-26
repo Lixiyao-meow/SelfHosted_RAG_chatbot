@@ -18,14 +18,14 @@ app_settings: Settings = load_settings(Settings)
 
 # Loading LLM model could be done lazily
 # For simplicity we load it eagerly for now
-if app_settings.HOSTED_LLM:
+if not app_settings.INMEMORY_LLM:
     # Use hosted LLM
     llm_settings = load_settings(HostedLlmSettings)
     generative_model = HostedLlm(
         llm_settings.LLM_API_BASE,
         llm_settings.LLM_API_KEY,
     )
-else:    
+else:
     # Load settings and construct LLM model to be used in-memory
     llm_settings = load_settings(InMemoryLlmSettings)
     generative_model = LLM_Model(

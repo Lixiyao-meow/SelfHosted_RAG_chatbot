@@ -1,0 +1,13 @@
+roles:
+  user: 
+    prefix: "### HUMAN:"
+    suffix: ""
+  assistant: 
+    prefix: "### RESPONSE:"
+    suffix: ""
+  system: 
+    prefix: "### SYSTEM:"
+    suffix: ""
+  function: 
+    prefix: "### FUNCTION:"
+    suffix: ""

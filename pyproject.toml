@@ -20,6 +20,7 @@ openai = "^0.28.1"
 llama-cpp-python = "^0.2.11"
 asyncio = "^3.4.3"
 atro-args = "^0.6.12"
+pydantic-yaml = "^1.2.0"
 
 [build-system]
 requires = ["poetry-core"]

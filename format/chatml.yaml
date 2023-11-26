@@ -1,0 +1,13 @@
+roles:
+  user: 
+    prefix: <|im_start|>user
+    suffix: <|im_end|>
+  assistant: 
+    prefix: <|im_start|>assisant
+    suffix: <|im_end|>
+  system: 
+    prefix: <|im_start|>system
+    suffix: <|im_end|>
+  function: 
+    prefix: <|im_start|>function
+    suffix: <|im_end|>
